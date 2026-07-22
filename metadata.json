@@ -1,0 +1,6 @@
+{
+  "name": "Ashir 4",
+  "description": "The Market Leviathan — A high-frequency market analysis engine for the XT exchange with Waterfall scan technology.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
