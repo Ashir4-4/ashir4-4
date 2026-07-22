@@ -295,7 +295,7 @@ export class SuperTrendPriceActionElliottStrategy {
     private swingLen = 5,
     // زیر این آستانه، بازار «رنج/بدون‌روند» در نظر گرفته می‌شود و حتی اگر چرخش
     // سوپرترند و تایید پرایس‌اکشن هم رخ بدهد، از ورود صرف‌نظر می‌شود.
-    private adxThreshold = 20,
+    private adxThreshold = 15,
     private adxPeriod = 14
   ) {}
 
@@ -334,10 +334,10 @@ export class SuperTrendPriceActionElliottStrategy {
     let reason = "شرایط ورود (چرخش سوپرترند + تایید پرایس‌اکشن + عدم اشباع موج) در حال حاضر برقرار نیست.";
 
     if (flipBull) {
-      // 🔒 سخت‌گیرتر شد: قبلاً کافی بود کندل کلیدی *یا* BOS باشد (OR)؛ حالا هر
-      // دو باید هم‌زمان تایید کنند (AND) تا سیگنال از تک‌شاخصی به هم‌گرایی
-      // (confluence) واقعی ارتقا پیدا کند و ورودهای الکی کمتر شوند.
-      const paConfirm = candle.bullish && bosUp;
+      // 🔓 برگردانده شد به OR (کندل یا BOS کافی است) — سخت‌گیری AND همراه با
+      // فیلتر ADX باعث شد تقریباً هیچ سیگنالی رد نشود. فیلتر اصلی ضدِ رنج/whipsaw
+      // همان ADX است؛ اینجا فقط یکی از کندل یا BOS لازم است.
+      const paConfirm = candle.bullish || bosUp;
       if (!trendIsStrong) {
         reason = `سوپرترند و پرایس‌اکشن هر دو صعودی بودند، اما بازار در حالت رنج/کم‌روند است (ADX=${adx.toFixed(1)} < ${this.adxThreshold}) — ریسک شکار حد ضرر بالاست، از ورود صرف‌نظر شد.`;
       } else if (paConfirm && !wave.waveRiskyZone) {
@@ -354,12 +354,12 @@ export class SuperTrendPriceActionElliottStrategy {
         action = "buy";
         reason = bits.join(" + ");
       } else if (!paConfirm) {
-        reason = "سوپرترند چرخش صعودی داشت، اما پرایس‌اکشن (کندل کلیدی و BOS همزمان) آن را تایید نکرد.";
+        reason = "سوپرترند چرخش صعودی داشت، اما نه کندل کلیدی و نه BOS آن را تایید نکردند.";
       } else {
         reason = `سوپرترند چرخش صعودی داشت اما موقعیت فعلی در ناحیه پرریسک امواج الیوت (موج ${wave.waveLabel}) است — از ورود صرف‌نظر شد.`;
       }
     } else if (flipBear) {
-      const paConfirm = candle.bearish && bosDown;
+      const paConfirm = candle.bearish || bosDown;
       if (!trendIsStrong) {
         reason = `سوپرترند و پرایس‌اکشن هر دو نزولی بودند، اما بازار در حالت رنج/کم‌روند است (ADX=${adx.toFixed(1)} < ${this.adxThreshold}) — ریسک شکار حد ضرر بالاست، از ورود صرف‌نظر شد.`;
       } else if (paConfirm && !wave.waveRiskyZone) {
@@ -376,7 +376,7 @@ export class SuperTrendPriceActionElliottStrategy {
         action = "sell";
         reason = bits.join(" + ");
       } else if (!paConfirm) {
-        reason = "سوپرترند چرخش نزولی داشت، اما پرایس‌اکشن (کندل کلیدی و BOS همزمان) آن را تایید نکرد.";
+        reason = "سوپرترند چرخش نزولی داشت، اما نه کندل کلیدی و نه BOS آن را تایید نکردند.";
       } else {
         reason = `سوپرترند چرخش نزولی داشت اما موقعیت فعلی در ناحیه پرریسک امواج الیوت (موج ${wave.waveLabel}) است — از ورود صرف‌نظر شد.`;
       }
